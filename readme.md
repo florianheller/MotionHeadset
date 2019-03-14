@@ -33,7 +33,11 @@ The system should communicate the following information to the host
 
 
 ## Hardware
-I am trying to make this as flexible as possible. Right now I have an Adafruit Huzzah 32 Feather board and a Sparkfun Thing32 for testing. Both boards come with a LiPo charger, which makes them easy to integrate. 
-The Thing32 can be extended using the Sparkfun Motion Shield that comes with an LSM9DS1 IMU, making it a nice, compact unit that can even be extended to include GPS if needed. 
-I will also try the Bosch BNO055 IMU for comparison. 
+I am trying to make this as flexible as possible. Right now I have an [Adafruit Huzzah 32 Feather board](https://www.adafruit.com/product/3405) and a [Sparkfun Thing32](https://www.sparkfun.com/products/13907) for testing. Both boards come with a LiPo charger, which makes them easy to integrate. 
+The Thing32 can be extended using the [Sparkfun ESP32 Motion Shield](https://www.sparkfun.com/products/14430) that comes with an LSM9DS1 IMU, making it a nice, compact unit that can even be extended to include GPS if needed. 
+I will also use the [Bosch BNO055 IMU](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor) for comparison. 
+There are Adafruit libraries for both IMUs [BNO055](https://github.com/adafruit/Adafruit_BNO055) and [LSM9DS1](https://github.com/adafruit/Adafruit_LSM9DS1). However, for the LSM9DS1, some calculations are necessary to generate a fused heading out of the raw sensor data. See [Sparkfun Library]((https://platformio.org/lib/show/1825/SparkFun%20LSM9DS1%20IMU)
+## Bluetooth Details
+
+
 
