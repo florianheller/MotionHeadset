@@ -3,10 +3,21 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
+// Define which type of sensor you are using here
+//#define LSM9DS1
+#define BNO055
+
 #include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
+#ifdef LSM9DS1
+  
+#endif
+
+#ifdef BNO055
+  #include <Adafruit_Sensor.h>
+  #include <Adafruit_BNO055.h>
+  #include <utility/imumaths.h>
+#endif
+
 
 BLEServer* pServer = NULL;
 BLECharacteristic* pCharacteristic = NULL;
@@ -89,6 +100,7 @@ void loop() {
         // TODO: Check if we can hand over the entire heading vector like this
         //pCharacteristic->setValue((uint8_t*)&euler, 6);
         uint16_t x = euler.x();
+        Serial.println(x);
         pCharacteristic->setValue(x);
         pCharacteristic->notify();
         delay(10); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
