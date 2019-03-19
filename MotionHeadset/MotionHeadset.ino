@@ -1,22 +1,13 @@
+
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
-// Define which type of sensor you are using here
-//#define LSM9DS1
-#define BNO055
+#include "MH_IMU.h"
+#include "MH_BLE.h"
 
-#include <Wire.h>
-#ifdef LSM9DS1
-  
-#endif
 
-#ifdef BNO055
-  #include <Adafruit_Sensor.h>
-  #include <Adafruit_BNO055.h>
-  #include <utility/imumaths.h>
-#endif
 
 
 BLEServer* pServer = NULL;
@@ -24,13 +15,8 @@ BLECharacteristic* pCharacteristic = NULL;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 
-#define UUID_SERVICE_IMU "7ca251df-137b-41b2-9169-1c0215bea6de"
-#define UUID_CHAR_COMBOHPR "919d5add-298f-4431-acf9-9f67275f1455"
 
-/* Set the delay between fresh samples */
-#define BNO055_SAMPLERATE_DELAY_MS (10)
 
-Adafruit_BNO055 bno = Adafruit_BNO055();
 
 
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -47,17 +33,9 @@ class MyServerCallbacks: public BLEServerCallbacks {
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-
-  /* Initialise the sensor */
-  if(!bno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
-  }
-
-  bno.setExtCrystalUse(true);
-
+  
+  //setup_IMU();
+  
   // Create the BLE Device
   BLEDevice::init("MotionHeadset");
 
@@ -96,14 +74,12 @@ void loop() {
   // put your main code here, to run repeatedly:
 // notify changed value
     if (deviceConnected) {
-        imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-        // TODO: Check if we can hand over the entire heading vector like this
-        //pCharacteristic->setValue((uint8_t*)&euler, 6);
-        uint16_t x = euler.x();
-        Serial.println(x);
-        pCharacteristic->setValue(x);
-        pCharacteristic->notify();
-        delay(10); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+       //imu::Vector<3> euler = getEuler();
+       uint16_t x = euler.x();
+       uint8_t value[] = {(x & 0xff), ((x>>8) & 0xff), 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E};
+       pCharacteristic->setValue(value, 14);
+       pCharacteristic->notify();
+       delay(IMU_SAMPLERATE_DELAY_MS); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
     }
     // disconnecting
     if (!deviceConnected && oldDeviceConnected) {
