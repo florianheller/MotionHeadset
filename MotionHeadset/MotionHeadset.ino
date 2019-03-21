@@ -6,7 +6,7 @@ void setup() {
   // For debug messages
   Serial.begin(115200);
 
-  //setup_IMU();
+  setup_IMU();
 
   setup_BLE();
   Serial.println("Waiting a client connection to notify...");
@@ -39,4 +39,11 @@ void loop() {
         // do stuff here on connecting
         oldDeviceConnected = deviceConnected;
     }
+}
+
+int readBattery() {
+  //Read battery level from pin A13 and multiply by 2 (on the ESP32 Feather)
+  // Return a value between 0-100
+  return 100;
+  
 }
