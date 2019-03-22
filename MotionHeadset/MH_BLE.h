@@ -24,7 +24,7 @@
 
   #define UUID_SERVICE_BATTERY BLEUUID((uint16_t)0x180F)
   // Battery level between 0 and 100%
-  #define UUID_BATTERY_LEVEL  0x2A19 
+  #define UUID_BATTERY_LEVEL BLEUUID((uint16_t)0x2A19)
 
   #define UUID_SERVICE_ENVIRONMENT 0x181A
   #define UUID_ENVIRONMENT_TEMPERATURE 0x2A6E
@@ -40,12 +40,17 @@
   
   BLEServer* pServer = NULL;
   BLECharacteristic* pCharacteristic = NULL;
+  BLECharacteristic* accCharacteristic = NULL;
+  BLECharacteristic* magCharacteristic = NULL;
+  
 
   BLECharacteristic* manufacturerCharacteristic = NULL;
   BLECharacteristic* modelnrCharacteristic = NULL;
   BLECharacteristic* serialnrCharacteristic = NULL;
   BLECharacteristic* hwCharacteristic = NULL;
   BLECharacteristic* fwCharacteristic = NULL;
+
+  BLECharacteristic* batteryLevelCharacteristic = NULL;
   
   bool deviceConnected = false;
   bool oldDeviceConnected = false;

@@ -10,6 +10,15 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
+// If the batterylevel is read, 
+class BatteryCallbacks: public BLECharacteristicCallbacks {
+  void onRead(BLECharacteristic *characteristic) {
+    //if (characteristic == batteryLevelCharacteristic) {
+      uint8_t batteryLevel[] = {readBattery()};
+      characteristic->setValue(batteryLevel, 1);
+    //}
+  }
+};
 
 void setup_BLE() {
 // Create the BLE Device
@@ -36,11 +45,44 @@ void setup_BLE() {
   BLEDescriptor *imuDescriptor = new BLEDescriptor(BLEUUID((uint16_t) 0x2901));
   imuDescriptor->setValue("IMU Data");
   pCharacteristic->addDescriptor(imuDescriptor);
-  // TODO: add acceleration vector service, gyro vector service and magentometer vector service
+  // TODO: add acceleration vector service, gyro vector service and magnetometer vector service
+ 
+  accCharacteristic = pService->createCharacteristic(
+                      UUID_CHAR_COMBOHPR,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_NOTIFY 
+                    );
+  accCharacteristic->addDescriptor(new BLE2902());
+  
+  magCharacteristic = pService->createCharacteristic(
+                      UUID_CHAR_COMBOHPR,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_NOTIFY 
+                    );
+  magCharacteristic->addDescriptor(new BLE2902());
+
+  
   // Start the service
   pService->start();
 
 
+
+  setupInfoService();
+  setupBatteryService();
+
+
+    // Start advertising
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(UUID_SERVICE_IMU);
+  pAdvertising->addServiceUUID(UUID_SERVICE_INFO);
+  pAdvertising->addServiceUUID(UUID_SERVICE_BATTERY);
+  pAdvertising->setScanResponse(false);
+  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+  BLEDevice::startAdvertising();
+  
+}
+
+void setupInfoService() {
 
   // Device info Service
   BLEService *infoService = pServer->createService(UUID_SERVICE_INFO);
@@ -57,13 +99,17 @@ void setup_BLE() {
   fwCharacteristic->setValue(INFO_FW_REV);
 
   infoService->start();
+}
 
-    // Start advertising
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(UUID_SERVICE_IMU);
-  pAdvertising->addServiceUUID(UUID_SERVICE_INFO);
-  pAdvertising->setScanResponse(false);
-  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
-  BLEDevice::startAdvertising();
+void setupBatteryService() {
+  BLEService *batteryService = pServer->createService(UUID_SERVICE_BATTERY);
+  BLECharacteristic* batteryLevelCharacteristic = batteryService->createCharacteristic(
+                      UUID_BATTERY_LEVEL,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_NOTIFY 
+                    );
+  batteryLevelCharacteristic->addDescriptor(new BLE2902());
+  batteryLevelCharacteristic->setCallbacks(new BatteryCallbacks());
   
+  batteryService->start();
 }
